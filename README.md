@@ -24,23 +24,7 @@ These classes are used in a Blazor application that interacts with **DynamoDB**,
 
 **Class Movie**: The Movie class stores basic movie information like the year and title
 
-**Contains two properties**:
-
-**Year (an integer)**: Represents the year of the movie
-
-**Title (a nullable string string?)**: Represents the title of the movie. The ? indicates that the Title property can hold a null value
-
-**Class MovieInfo**: MovieInfo class holds additional details such as the plot and ranking of the movie
-
-**Contains two properties**:
-
-**Plot (a nullable string string?**: Represents the plot description of the movie. Again, ? indicates that this property can be null
-
-**Rank (an integer)**: Represents the ranking of the movie
-
-These models are used when interacting with a **DynamoDB** table, storing or retrieving movie-related data within the Blazor framework
-
-See the source code for both data model classes: 
+See the source code: 
 
 **Movie.cs**
 
@@ -55,6 +39,16 @@ namespace DynamoDbBlazor.Data
 }
 ```
 
+**Contains two properties**:
+
+**Year (an integer)**: Represents the year of the movie
+
+**Title (a nullable string string?)**: Represents the title of the movie. The ? indicates that the Title property can hold a null value
+
+**Class MovieInfo**: MovieInfo class holds additional details such as the plot and ranking of the movie
+
+See the source code:
+
 **MovieInfo.cs**
 
 ```csharp
@@ -67,6 +61,14 @@ namespace DynamoDbBlazor.Data
     }
 }
 ```
+
+**Contains two properties**:
+
+**Plot (a nullable string string?**: Represents the plot description of the movie. Again, ? indicates that this property can be null
+
+**Rank (an integer)**: Represents the ranking of the movie
+
+These models are used when interacting with a **DynamoDB** table, storing or retrieving movie-related data within the Blazor framework
 
 ## 4. Create Data Repository
 
