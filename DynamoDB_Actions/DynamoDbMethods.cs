@@ -8,6 +8,12 @@
 
     public static class DynamoDbMethods
     {
+        public static async Task<List<string>> ListTablesAsync(AmazonDynamoDBClient client)
+        {
+            var response = await client.ListTablesAsync();
+            return response.TableNames;
+        }
+
         public static async Task<bool> CreateMovieTableAsync(AmazonDynamoDBClient client, string tableName)
         {
             var request = new CreateTableRequest

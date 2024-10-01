@@ -16,6 +16,11 @@
             _client = new AmazonDynamoDBClient();
         }
 
+        public async Task<List<string>> ListTablesAsync()
+        {
+            return await DynamoDbMethods.ListTablesAsync(_client);
+        }
+
         public async Task<bool> CreateTableAsync()
         {
             return await DynamoDbMethods.CreateMovieTableAsync(_client, _tableName);
