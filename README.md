@@ -14,6 +14,34 @@ Load the AWSSDK.DynamoDBv2 package, see the figure for more details:
 
 ## 3. Create Data Models
 
+This code defines two classes, **Movie** and **MovieInfo**, within the **DynamoDbBlazor.Data** namespace
+
+![image](https://github.com/user-attachments/assets/973fcc81-7199-47ea-ac3a-833cf76d1e03)
+
+These classes are used in a Blazor application that interacts with **DynamoDB**, an **AWS NoSQL** database service
+
+**Namespace DynamoDbBlazor.Data**: The namespace groups these classes logically, part of a Blazor project that deals with **DynamoDB** data operations
+
+**Class Movie**: The Movie class stores basic movie information like the year and title
+
+**Contains two properties**:
+
+**Year (an integer)**: Represents the year of the movie
+
+**Title (a nullable string string?)**: Represents the title of the movie. The ? indicates that the Title property can hold a null value
+
+**Class MovieInfo**: MovieInfo class holds additional details such as the plot and ranking of the movie
+
+**Contains two properties**:
+
+**Plot (a nullable string string?**: Represents the plot description of the movie. Again, ? indicates that this property can be null
+
+**Rank (an integer)**: Represents the ranking of the movie
+
+These models are used when interacting with a **DynamoDB** table, storing or retrieving movie-related data within the Blazor framework
+
+See the source code for both data model classes: 
+
 **Movie.cs**
 
 ```csharp
