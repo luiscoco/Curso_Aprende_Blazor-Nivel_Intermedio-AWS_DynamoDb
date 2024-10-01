@@ -1,4 +1,4 @@
-﻿namespace DynamoDbBlazor.DynamoDB_Actions
+﻿namespace DynamoDbBlazor.Repository
 {
     using Amazon.DynamoDBv2;
     using Amazon.DynamoDBv2.Model;

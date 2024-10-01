@@ -3,7 +3,7 @@
     using Amazon.DynamoDBv2;
     using Amazon.DynamoDBv2.Model;
     using DynamoDbBlazor.Data;
-    using DynamoDbBlazor.DynamoDB_Actions;
+    using DynamoDbBlazor.Repository;
     using System.Threading.Tasks;
 
     public class DynamoDbService
