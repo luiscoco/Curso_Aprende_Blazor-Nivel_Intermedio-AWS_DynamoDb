@@ -51,9 +51,9 @@
             return await DynamoDbMethods.DeleteItemAsync(_client, _tableName, movie);
         }
 
-        public async Task<int> QueryMoviesAsync(int year)
+        public async Task<int> QueryMoviesAsync(int year, string tablename)
         {
-            return await DynamoDbMethods.QueryMoviesAsync(_client, _tableName, year);
+            return await DynamoDbMethods.QueryMoviesAsync(_client, tablename, year);
         }
 
         public async Task<int> ScanMoviesAsync(int startYear, int endYear)
