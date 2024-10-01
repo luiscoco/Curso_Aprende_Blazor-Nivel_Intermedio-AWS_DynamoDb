@@ -21,9 +21,9 @@
             return await DynamoDbMethods.ListTablesAsync(_client);
         }
 
-        public async Task<bool> CreateTableAsync()
+        public async Task<bool> CreateTableAsync(string tablename)
         {
-            return await DynamoDbMethods.CreateMovieTableAsync(_client, _tableName);
+            return await DynamoDbMethods.CreateMovieTableAsync(_client, tablename);
         }
 
         public async Task<bool> AddMovieAsync(Movie movie)
@@ -61,9 +61,54 @@
             return await DynamoDbMethods.ScanTableAsync(_client, _tableName, startYear, endYear);
         }
 
-        public async Task<bool> DeleteTableAsync()
+        public async Task<bool> DeleteTableAsync(string tablename)
         {
-            return await DynamoDbMethods.DeleteTableAsync(_client, _tableName);
+            return await DynamoDbMethods.DeleteTableAsync(_client, tablename);
         }
+
+        public async Task<bool> AddMovieToTableAsync(Movie movie, string tableName)
+        {
+            return await DynamoDbMethods.PutItemAsync(_client, movie, tableName);
+        }
+
+        public async Task<List<Movie>> GetMoviesFromTableAsync(string tableName)
+        {
+            var request = new ScanRequest
+            {
+                TableName = tableName
+            };
+
+            var response = await _client.ScanAsync(request);
+
+            List<Movie> movies = new List<Movie>();
+
+            // Process each item in the response
+            foreach (var item in response.Items)
+            {
+                try
+                {
+                    // Ensure 'Year' and 'Title' fields exist in the item
+                    if (item.ContainsKey("Year") && item.ContainsKey("Title"))
+                    {
+                        Movie movie = new Movie
+                        {
+                            Year = int.Parse(item["Year"].N),  // Convert DynamoDB 'Number' to int
+                            Title = item["Title"].S             // Extract 'String' directly
+                        };
+
+                        movies.Add(movie);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error parsing movie data: {ex.Message}");
+                }
+            }
+
+            return movies;
+        }
+
+
+
     }
 }

@@ -1,32 +1,30 @@
 ﻿@page "/create-table"
 
 @using DynamoDbBlazor.Services
+
 @inject DynamoDbService DynamoDbService
+@inject IJSRuntime JSRuntime
 
 <div class="container mt-4">
     <h3 class="text-primary mb-4">Create DynamoDB Table</h3>
 
+    <!-- Input box for entering the table name -->
     <div class="form-group">
-        <button class="btn btn-primary" @onclick="CreateTableAsync">Create Table</button>
+        <label for="tableNameInput">Table Name:</label>
+        <input type="text" id="tableNameInput" class="form-control" @bind="mytable" placeholder="Enter table name" />
     </div>
 
-    @if (isCreating)
+    <!-- Create table button -->
+    <div class="form-group">
+        <button class="btn btn-primary" @onclick="CreateTableAsync" disabled="@string.IsNullOrEmpty(mytable)">Create Table</button>
+    </div>
+
+    <!-- Display the unified message for table creation, deletion, or error -->
+    @if (!string.IsNullOrEmpty(message))
     {
-        <div class="alert alert-info mt-3">Creating table...</div>
+        <div class="alert @messageClass mt-3">@message</div>
     }
 
-    @if (isSuccess)
-    {
-        <div class="alert alert-success mt-3">Table created successfully!</div>
-    }
-    @if (isError && !tableAlreadyExists)
-    {
-        <div class="alert alert-danger mt-3">Failed to create table. Please try again later.</div>
-    }
-    @if (tableAlreadyExists)
-    {
-        <div class="alert alert-warning mt-3">Table already exists.</div>
-    }
     <!-- List of existing tables -->
     <h4 class="mt-4">Existing DynamoDB Tables:</h4>
     @if (tables == null)
@@ -42,18 +40,29 @@
         <ul class="list-group mt-3">
             @foreach (var table in tables)
             {
-                <li class="list-group-item">@table</li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @table
+                    <button class="btn btn-danger btn-sm" @onclick="(() => DeleteTableAsync(table))">Delete</button>
+                </li>
             }
         </ul>
     }
 </div>
 
+<br />
+<br />
+
 @code {
+    private string message = "";
+    private string messageClass = "";
     private bool isCreating = false;
     private bool isSuccess = false;
     private bool isError = false;
     private bool tableAlreadyExists = false;
-    private List<string> tables = null;
+    private List<string> tables = new List<string>();
+
+    // Default table name, can be changed by user input
+    private string mytable = "myfirsttable";
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,6 +71,8 @@
 
     private async Task CreateTableAsync()
     {
+        ClearMessage();
+
         isCreating = true;
         isSuccess = false;
         isError = false;
@@ -69,39 +80,107 @@
 
         try
         {
-            var success = await DynamoDbService.CreateTableAsync();
+            var success = await DynamoDbService.CreateTableAsync(mytable);
             if (success)
             {
+                // Give the UI some time to update
+                await Task.Delay(0);
+
+                await LoadExistingTablesAsync(); // Refresh the table list after creation
+
                 isSuccess = true;
+                message = "Table created successfully!";
+                messageClass = "alert-success";
             }
             else
             {
                 isError = true;
+                message = "Failed to create table.";
+                messageClass = "alert-danger";
             }
         }
         catch (Amazon.DynamoDBv2.Model.ResourceInUseException)
         {
             // Handle the table already exists scenario
             tableAlreadyExists = true;
+            message = "Table already exists.";
+            messageClass = "alert-warning";
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Handle any other exceptions
             isError = true;
+            message = $"Error creating table: {ex.Message}";
+            messageClass = "alert-danger";
         }
 
         isCreating = false;
+
+        // Force the UI to re-render and show the message
+        StateHasChanged();
     }
 
     private async Task LoadExistingTablesAsync()
     {
+        ClearMessage();
+
         try
         {
             tables = await DynamoDbService.ListTablesAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading tables: {ex.Message}");
+            message = $"Error loading tables: {ex.Message}";
+            messageClass = "alert-danger";
         }
+    }
+
+    private async Task DeleteTableAsync(string tableName)
+    {
+        ClearMessage();
+
+        // Ask for confirmation before deletion
+        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the table '{tableName}'?");
+        if (confirm)
+        {
+            try
+            {
+                // Call the service to delete the table
+                var success = await DynamoDbService.DeleteTableAsync(tableName);
+
+                if (success)
+                {
+                    message = $"Successfully deleted table: {tableName}";
+                    messageClass = "alert-success";
+
+                    // Remove the table from the list
+                    tables.Remove(tableName);
+
+                    // Update the UI after table deletion
+                    StateHasChanged();
+                }
+                else
+                {
+                    message = $"Failed to delete table: {tableName}";
+                    messageClass = "alert-danger";
+                }
+            }
+            catch (Exception ex)
+            {
+                message = $"Error deleting table '{tableName}': {ex.Message}";
+                messageClass = "alert-danger";
+            }
+        }
+        else
+        {
+            message = $"Deletion cancelled for: {tableName}";
+            messageClass = "alert-warning";
+        }
+    }
+
+    private void ClearMessage()
+    {
+        message = "";
+        messageClass = "";
     }
 }

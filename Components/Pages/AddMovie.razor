@@ -7,23 +7,51 @@
 <div class="container mt-4">
     <h3 class="text-primary mb-4">Add Movie</h3>
 
-    <EditForm Model="@newMovie" OnValidSubmit="@SubmitMovie" class="needs-validation">
-        <DataAnnotationsValidator />
-        <ValidationSummary class="alert alert-danger" />
+    <!-- Dropdown for selecting a DynamoDB table -->
+    <div class="mb-3">
+        <label for="tableSelect" class="form-label">Select Table:</label>
+        @if (tables == null)
+        {
+            <div>Loading tables...</div>
+        }
+        else if (tables.Count == 0)
+        {
+            <div>No tables found in AWS DynamoDB.</div>
+        }
+        else
+        {
+            <select id="tableSelect" class="form-select" @bind="SelectedTable">
+                <option value="">-- Select a table --</option>
+                @foreach (var table in tables)
+                {
+                    <option value="@table">@table</option>
+                }
+            </select>
+        }
+    </div>
 
-        <div class="mb-3">
-            <label for="year" class="form-label">Year:</label>
-            <InputNumber id="year" @bind-Value="newMovie.Year" class="form-control" />
-        </div>
+    <!-- Movie entry form -->
+    @if (!string.IsNullOrEmpty(SelectedTable))
+    {
+        <EditForm Model="@newMovie" OnValidSubmit="@SubmitMovie" class="needs-validation">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" />
 
-        <div class="mb-3">
-            <label for="title" class="form-label">Title:</label>
-            <InputText id="title" @bind-Value="newMovie.Title" class="form-control" />
-        </div>
+            <div class="mb-3">
+                <label for="year" class="form-label">Year:</label>
+                <InputNumber id="year" @bind-Value="newMovie.Year" class="form-control" />
+            </div>
 
-        <button type="submit" class="btn btn-success">Add Movie</button>
-    </EditForm>
+            <div class="mb-3">
+                <label for="title" class="form-label">Title:</label>
+                <InputText id="title" @bind-Value="newMovie.Title" class="form-control" />
+            </div>
 
+            <button type="submit" class="btn btn-success">Add Movie</button>
+        </EditForm>
+    }
+
+    <!-- Success or error messages -->
     @if (isSuccess)
     {
         <div class="alert alert-success mt-3">Movie added successfully!</div>
@@ -37,6 +65,24 @@
     {
         <div class="alert alert-warning mt-3">This movie already exists in the database.</div>
     }
+
+    <!-- Display items from the selected table -->
+    @if (itemsInTable != null && itemsInTable.Count > 0)
+    {
+        <h4 class="mt-4">Items in '@SelectedTable' Table:</h4>
+        <ul class="list-group">
+            @foreach (var item in itemsInTable)
+            {
+                <li class="list-group-item">
+                    Year: @item.Year, Title: @item.Title
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="alert alert-info mt-3">No items found in the selected table.</div>
+    }
 </div>
 
 @code {
@@ -46,22 +92,91 @@
     private bool movieAlreadyExists = false;
     private string errorMessage = string.Empty;
 
+    // Variables for listing and selecting tables
+    private List<string> tables = new List<string>();
+    private string selectedTable = "";
+
+    // List to store items (movies) from the selected table
+    private List<Movie> itemsInTable = new List<Movie>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadExistingTablesAsync();
+    }
+
+    private async Task LoadExistingTablesAsync()
+    {
+        try
+        {
+            // Load the list of DynamoDB tables from AWS
+            tables = await DynamoDbService.ListTablesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading tables: {ex.Message}";
+            isError = true;
+        }
+    }
+
+    // Load table items automatically when the SelectedTable value changes
+    private string SelectedTable
+    {
+        get => selectedTable;
+        set
+        {
+            if (selectedTable != value)
+            {
+                selectedTable = value;
+                LoadTableItems().ConfigureAwait(false);
+            }
+        }
+    }
+
+    private async Task LoadTableItems()
+    {
+        Console.WriteLine($"Loading items from table: {selectedTable}");
+        itemsInTable.Clear();
+        if (!string.IsNullOrEmpty(selectedTable))
+        {
+            try
+            {
+                // Load the items (movies) from the selected table
+                itemsInTable = await DynamoDbService.GetMoviesFromTableAsync(selectedTable);
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error loading items from table '{selectedTable}': {ex.Message}";
+                isError = true;
+            }
+        }
+    }
+
     private async Task SubmitMovie()
     {
+        // Clear previous flags and messages
         isSuccess = false;
         isError = false;
         movieAlreadyExists = false;
         errorMessage = string.Empty;
 
+        // Ensure a table is selected
+        if (string.IsNullOrEmpty(selectedTable))
+        {
+            isError = true;
+            errorMessage = "Please select a DynamoDB table.";
+            return;
+        }
+
         try
         {
-            // Try to add the movie using DynamoDbService
-            isSuccess = await DynamoDbService.AddMovieAsync(newMovie);
+            // Try to add the movie using the selected DynamoDB table
+            isSuccess = await DynamoDbService.AddMovieToTableAsync(newMovie, selectedTable);
 
-            // If the movie was added successfully, set the success flag
+            // If the movie was added successfully, refresh the items list
             if (isSuccess)
             {
-                isSuccess = true;
+                await LoadTableItems();
             }
             else
             {

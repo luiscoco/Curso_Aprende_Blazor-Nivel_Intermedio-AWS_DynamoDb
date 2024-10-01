@@ -207,5 +207,29 @@
             // Implement JSON parsing logic here and return list of movies
             return new List<Movie>();
         }
+
+        public static async Task<List<Movie>> QueryMoviesFromTableAsync(AmazonDynamoDBClient client, string tableName)
+        {
+            var request = new ScanRequest
+            {
+                TableName = tableName
+            };
+
+            var response = await client.ScanAsync(request);
+
+            List<Movie> movies = new List<Movie>();
+
+            foreach (var item in response.Items)
+            {
+                Movie movie = new Movie
+                {
+                    Year = int.Parse(item["Year"].N),
+                    Title = item["Title"].S
+                };
+                movies.Add(movie);
+            }
+
+            return movies;
+        }
     }
 }
