@@ -941,7 +941,7 @@ When the user clicks "Search," the QueryMoviesFunction is invoked, which queries
 
 The result is displayed on the page, showing how many movies were found
 
-![image](https://github.com/user-attachments/assets/a4764de3-5907-444e-bc5b-74dce32548fd)
+![image](https://github.com/user-attachments/assets/32a4c5b2-40a0-4a76-9e40-8e9ebb8afd35)
 
 **QueryMovies.razor**
 
@@ -1033,6 +1033,8 @@ The result is displayed on the page, showing how many movies were found
 ```
 
 ## 10. Add the MenuItems for accessing the above new components
+
+![image](https://github.com/user-attachments/assets/6d364124-4451-4acf-89af-0c66cd14a4a8)
 
 These are the NavLinkd adding to navigate to the new components:
 
