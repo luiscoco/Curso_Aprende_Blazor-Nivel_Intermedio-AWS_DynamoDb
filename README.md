@@ -1,6 +1,8 @@
 # How to manage AWS DynamoDb Tables and Items from Blazor Web App
 
-Note: this tutorial is based on the official AWS DynamoDB Samples https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/csharp_dynamodb_code_examples.html
+Note: this tutorial is based on the official AWS DynamoDB Samples
+
+https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/csharp_dynamodb_code_examples.html
 
 ## 1. Create Blazor Web App
 
