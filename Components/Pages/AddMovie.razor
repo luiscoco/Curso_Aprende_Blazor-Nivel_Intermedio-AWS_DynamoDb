@@ -73,13 +73,14 @@
         <ul class="list-group">
             @foreach (var item in itemsInTable)
             {
-                <li class="list-group-item">
-                    Year: @item.Year, Title: @item.Title
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Year: @item.Year, Title: @item.Title</span>
+                    <button class="btn btn-danger btn-sm" @onclick="(() => DeleteMovie(item))">Delete</button>
                 </li>
             }
         </ul>
     }
-    else
+    else if (!string.IsNullOrEmpty(SelectedTable))
     {
         <div class="alert alert-info mt-3">No items found in the selected table.</div>
     }
@@ -192,6 +193,30 @@
         {
             // Capture the specific error message and display it
             errorMessage = ex.Message;
+            isError = true;
+        }
+    }
+
+    private async Task DeleteMovie(Movie movie)
+    {
+        try
+        {
+            bool success = await DynamoDbService.DeleteMovieAsync(movie, selectedTable);
+            if (success)
+            {
+                // Remove the movie from the list if deleted successfully
+                itemsInTable.Remove(movie);
+                StateHasChanged();
+            }
+            else
+            {
+                errorMessage = $"Failed to delete movie: {movie.Title}.";
+                isError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting movie '{movie.Title}': {ex.Message}";
             isError = true;
         }
     }

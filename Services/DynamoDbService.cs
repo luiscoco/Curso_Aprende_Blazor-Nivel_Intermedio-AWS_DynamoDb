@@ -108,6 +108,18 @@
             return movies;
         }
 
+        public async Task<bool> DeleteMovieAsync(Movie movie, string tableName)
+        {
+            try
+            {
+                return await DynamoDbMethods.DeleteItemAsync(_client, tableName, movie);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting movie: {ex.Message}");
+                return false;
+            }
+        }
 
 
     }
