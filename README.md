@@ -96,9 +96,7 @@ Uses UpdateItemAsync() to perform the update operation
 
 Returns a boolean based on the success of the operation
 
-**BatchWriteItemsAsync**:
-
-A placeholder method that reads movies from a JSON file and writes multiple movie items in batch to the DynamoDB table using the PutItemAsync method
+**BatchWriteItemsAsync**: A placeholder method that reads movies from a JSON file and writes multiple movie items in batch to the DynamoDB table using the PutItemAsync method
 
 **GetItemAsyn**: Retrieves a specific movie item based on the partition key (Year) and sort key (Title) from the specified table
 
