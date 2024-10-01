@@ -382,6 +382,54 @@ namespace DynamoDbBlazor.Repository
 
 ## 5. Create Service
 
+This code defines a class DynamoDbService within the **DynamoDbBlazor.Services** namespace, which acts as a service layer to interact with Amazon DynamoDB through a set of predefined methods
+
+This service encapsulates the logic for working with a DynamoDB table, specifically handling **CRUD operations** and other DynamoDB actions
+
+**Key Components**:
+
+**AmazonDynamoDBClient**: This is the client object from the AWS SDK that facilitates communication with DynamoDB. The class creates an instance of this client (_client) for all its interactions with DynamoDB
+
+**_tableName**: The default table name is hardcoded as "movie_table", which is used for most of the operations involving movies
+
+**Methods**: 
+
+**ListTablesAsync**: Calls the DynamoDbMethods.ListTablesAsync method to retrieve a list of all DynamoDB tables using the provided client (_client)
+
+**CreateTableAsync**: Calls DynamoDbMethods.CreateMovieTableAsync to create a new DynamoDB table with the specified name
+
+**AddMovieAsync**: Adds a new movie to the DynamoDB table (movie_table) by calling the PutItemAsync method from DynamoDbMethods
+
+**UpdateMovieAsync**: Updates an existing movie entry in the table by calling UpdateItemAsync. It takes a Movie and MovieInfo object to update specific fields.
+
+**BatchAddMoviesAsync**: Performs a batch insertion of movie records from a file. This method calls BatchWriteItemsAsync to read movies from a JSON file and add them to the table
+
+**GetMovieAsync**: Retrieves a movie record from the DynamoDB table based on the Year and Title. It uses the GetItemAsync method from DynamoDbMethods
+
+**DeleteMovieAsync**: Deletes a movie entry from the default movie_table by calling DeleteItemAsync
+
+**QueryMoviesAsync**: Queries the specified table (tablename) to find all movies from a given year by calling QueryMoviesAsync
+
+**ScanMoviesAsync**: Scans the entire movie_table for movies within a given year range (startYear to endYear) using the ScanTableAsync method
+
+**DeleteTableAsync**: Deletes a specified DynamoDB table by calling the DeleteTableAsync method
+
+**AddMovieToTableAsync**: Adds a movie to a specific DynamoDB table (tableName) by calling the PutItemAsync method. It differs from AddMovieAsync by allowing the user to specify a table name
+
+**GetMoviesFromTableAsync**: Scans the specified table (tableName) and retrieves all movie items. It uses the ScanRequest to get all items and processes each one to construct a list of Movie objects
+
+**DeleteMovieAsync (overloaded)**: Deletes a movie from a specified table (tableName) by calling DeleteItemAsync. This method is a more flexible version of the earlier DeleteMovieAsync, allowing for the table name to be passed in
+
+**Key Concepts**:
+
+**Encapsulation of DynamoDbMethods**: The DynamoDbService class serves as an intermediary, simplifying the interaction with DynamoDbMethods. This way, the logic of working with the DynamoDB client is abstracted, making it easier for other parts of the application to perform DynamoDB operations
+
+**Async Operations**: All methods are asynchronous (Task<T>) to ensure that DynamoDB operations do not block the main application thread, which is essential for scalability and performance, especially in cloud-based applications
+
+**Exception Handling**: The code includes basic error handling (e.g., in DeleteMovieAsync and GetMoviesFromTableAsync) to catch exceptions and log errors, ensuring the application is more robust
+
+See the source code for more details:
+
 **DynamoDbService.cs**
 
 ```csharp
