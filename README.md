@@ -72,6 +72,74 @@ These models are used when interacting with a **DynamoDB** table, storing or ret
 
 ## 4. Create Data Repository
 
+This code defines a static class **DynamoDbMethods** within the **DynamoDbBlazor.Repository** namespace, providing various methods to interact with an Amazon DynamoDB database
+
+It uses the AWS SDK for .NET to perform common database operations like listing tables, creating a table, inserting, updating, retrieving, and deleting items:
+
+**ListTablesAsync**: Retrieves a list of all DynamoDB table names using the ListTablesAsync() method from the AmazonDynamoDBClient
+
+**CreateMovieTableAsync**: Creates a DynamoDB table for storing movie data
+
+Defines attributes (Year, Title), key schema (partition key Year and sort key Title), and provisioned throughput for read/write operations
+
+Returns a boolean indicating whether the table was created successfully
+
+**PutItemAsync**: Inserts a new movie item into the specified DynamoDB table
+
+Checks if the movie already exists using a condition expression before adding it to avoid duplicates
+
+Returns a boolean indicating whether the operation succeeded
+
+**UpdateItemAsync**: Updates an existing movie item in the table by changing its Plot and Rank attributes
+
+Uses UpdateItemAsync() to perform the update operation
+
+Returns a boolean based on the success of the operation
+
+**BatchWriteItemsAsync**:
+
+A placeholder method that reads movies from a JSON file and writes multiple movie items in batch to the DynamoDB table using the PutItemAsync method
+
+**GetItemAsyn**: Retrieves a specific movie item based on the partition key (Year) and sort key (Title) from the specified table
+
+Returns the retrieved item as a dictionary of AttributeValue
+
+**DeleteItemAsync**: Deletes a movie item from the DynamoDB table based on the specified keys (Year and Title)
+
+Returns a boolean indicating whether the delete operation was successful
+
+**QueryMoviesAsync**: Queries movies from the DynamoDB table based on the Year using a key condition expression
+
+Returns the number of matching items
+
+**ScanTableAsync**: Scans the entire table and retrieves all movie items where the Year is between a specified range (startYear and endYear)
+
+Returns the count of matching items
+
+**DeleteTableAsync**: Deletes the specified DynamoDB table
+
+Returns a boolean indicating if the operation was successful
+
+**ReadMoviesFromJson**: A placeholder helper method for reading movie data from a JSON file (not implemented in this snippet)
+
+**QueryMoviesFromTableAsync**: Scans the DynamoDB table and retrieves all movie items, returning a list of Movie objects
+
+**Additional Concepts**:
+
+**AmazonDynamoDBClient**: A client object provided by the AWS SDK that handles requests to the DynamoDB service
+
+**Attribute Definitions**: Specifies the attributes and their data types for the table (e.g., N for numbers, S for strings)
+
+**Key Schema**: Defines the primary key structure, consisting of a partition key (HASH) and an optional sort key (RANGE)
+
+**Condition Expression**: Used in PutItemAsync to ensure that the movie item does not already exist before insertion
+
+**Provisioned Throughput**: Specifies the read and write capacity units for the table
+
+**Exception Handling**: Catches specific exceptions like ConditionalCheckFailedException for conditional write failures and logs other exceptions for debugging
+
+This code provides basic **CRUD (Create, Read, Update, Delete)** operations and scanning/querying functionality for a DynamoDB table that stores movie data
+
 **DynamoDbMethods**
 
 ```csharp
