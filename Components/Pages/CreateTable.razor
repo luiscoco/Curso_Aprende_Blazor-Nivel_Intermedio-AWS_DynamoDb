@@ -1,0 +1,70 @@
+﻿@page "/create-table"
+
+@using DynamoDbBlazor.Services
+@inject DynamoDbService DynamoDbService
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4">Create DynamoDB Table</h3>
+
+    <div class="form-group">
+        <button class="btn btn-primary" @onclick="CreateTableAsync">Create Table</button>
+    </div>
+
+    @if (isCreating)
+    {
+        <div class="alert alert-info mt-3">Creating table...</div>
+    }
+
+    @if (isSuccess)
+    {
+        <div class="alert alert-success mt-3">Table created successfully!</div>
+    }
+    @if (isError && !tableAlreadyExists)
+    {
+        <div class="alert alert-danger mt-3">Failed to create table. Please try again later.</div>
+    }
+    @if (tableAlreadyExists)
+    {
+        <div class="alert alert-warning mt-3">Table already exists.</div>
+    }
+</div>
+
+@code {
+    private bool isCreating = false;
+    private bool isSuccess = false;
+    private bool isError = false;
+    private bool tableAlreadyExists = false;
+
+    private async Task CreateTableAsync()
+    {
+        isCreating = true;
+        isSuccess = false;
+        isError = false;
+        tableAlreadyExists = false;
+
+        try
+        {
+            var success = await DynamoDbService.CreateTableAsync();
+            if (success)
+            {
+                isSuccess = true;
+            }
+            else
+            {
+                isError = true;
+            }
+        }
+        catch (Amazon.DynamoDBv2.Model.ResourceInUseException)
+        {
+            // Handle the table already exists scenario
+            tableAlreadyExists = true;
+        }
+        catch (Exception)
+        {
+            // Handle any other exceptions
+            isError = true;
+        }
+
+        isCreating = false;
+    }
+}

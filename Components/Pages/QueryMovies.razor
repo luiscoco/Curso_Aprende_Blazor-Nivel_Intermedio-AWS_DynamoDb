@@ -1,0 +1,32 @@
+﻿@page "/query-movies"
+
+@using DynamoDbBlazor.Data
+@using DynamoDbBlazor.Services
+@inject DynamoDbService DynamoDbService
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4">Query Movies by Year</h3>
+
+    <EditForm Model="@searchYear" OnValidSubmit="@QueryMoviesFunction" class="needs-validation">
+        <div class="mb-3">
+            <label for="year" class="form-label">Year:</label>
+            <InputNumber id="year" @bind-Value="searchYear" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </EditForm>
+
+    @if (moviesFound >= 0)
+    {
+        <div class="alert alert-info mt-3">Found @moviesFound movies from @searchYear.</div>
+    }
+</div>
+
+@code {
+    private int searchYear = 0;
+    private int moviesFound = -1;
+
+    private async Task QueryMoviesFunction()
+    {
+        moviesFound = await DynamoDbService.QueryMoviesAsync(searchYear);
+    }
+}

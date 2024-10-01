@@ -1,0 +1,83 @@
+﻿@page "/add-movie"
+@using DynamoDbBlazor.Data
+@using DynamoDbBlazor.Services
+
+@inject DynamoDbService DynamoDbService
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4">Add Movie</h3>
+
+    <EditForm Model="@newMovie" OnValidSubmit="@SubmitMovie" class="needs-validation">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="alert alert-danger" />
+
+        <div class="mb-3">
+            <label for="year" class="form-label">Year:</label>
+            <InputNumber id="year" @bind-Value="newMovie.Year" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <InputText id="title" @bind-Value="newMovie.Title" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Add Movie</button>
+    </EditForm>
+
+    @if (isSuccess)
+    {
+        <div class="alert alert-success mt-3">Movie added successfully!</div>
+    }
+    @if (isError && !movieAlreadyExists)
+    {
+        <div class="alert alert-danger mt-3">Failed to add movie. Please try again later.</div>
+        <div class="alert alert-danger mt-3">@errorMessage</div>
+    }
+    @if (movieAlreadyExists)
+    {
+        <div class="alert alert-warning mt-3">This movie already exists in the database.</div>
+    }
+</div>
+
+@code {
+    private Movie newMovie = new Movie();
+    private bool isSuccess = false;
+    private bool isError = false;
+    private bool movieAlreadyExists = false;
+    private string errorMessage = string.Empty;
+
+    private async Task SubmitMovie()
+    {
+        isSuccess = false;
+        isError = false;
+        movieAlreadyExists = false;
+        errorMessage = string.Empty;
+
+        try
+        {
+            // Try to add the movie using DynamoDbService
+            isSuccess = await DynamoDbService.AddMovieAsync(newMovie);
+
+            // If the movie was added successfully, set the success flag
+            if (isSuccess)
+            {
+                isSuccess = true;
+            }
+            else
+            {
+                isError = true;
+            }
+        }
+        catch (Amazon.DynamoDBv2.Model.ConditionalCheckFailedException)
+        {
+            // Handle the case where the movie already exists
+            movieAlreadyExists = true;
+        }
+        catch (Exception ex)
+        {
+            // Capture the specific error message and display it
+            errorMessage = ex.Message;
+            isError = true;
+        }
+    }
+}
