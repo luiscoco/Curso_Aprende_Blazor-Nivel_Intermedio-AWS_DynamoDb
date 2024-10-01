@@ -6,7 +6,25 @@ https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/csharp_dynamodb_code_
 
 ## 1. Create Blazor Web App
 
+Run Visual Studio 2022 Community Edition
 
+![image](https://github.com/user-attachments/assets/c65a48f6-e0a1-4c52-9cde-97699749c78c)
+
+Select the project template: Blazor Web App
+
+![image](https://github.com/user-attachments/assets/bdab8446-a6ba-4eed-a8ea-294bb6317f20)
+
+Input the project name and location in the hard disk:
+
+![image](https://github.com/user-attachments/assets/c7ec1012-c7d8-467d-abe7-2250b382af74)
+
+Leave all the default values and press the Create button
+
+![image](https://github.com/user-attachments/assets/3a2f5b5f-cace-4522-9523-045b22e6df1e)
+
+See the application folders and files structure:
+
+![image](https://github.com/user-attachments/assets/36cea5c9-fce7-4876-a6bc-0a6b9b630227)
 
 ## 2. Load Nuget package
 
