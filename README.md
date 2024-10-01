@@ -606,6 +606,10 @@ app.Run();
 
 ## 7. Create a Component for Creating and deleting AWS DynamoDb Tables
 
+![image](https://github.com/user-attachments/assets/dd6b45e3-7694-4eab-85fe-f21b5368b89a)
+
+The following code creates and deletes AWS DynamoDB Tables: 
+
 **AddItem.razor**
 
 ```razor
