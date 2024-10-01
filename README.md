@@ -840,6 +840,8 @@ The following code creates and deletes AWS DynamoDB Tables:
 
 ## 8. Create a Component for Adding and deleting Items inside the Tables
 
+![image](https://github.com/user-attachments/assets/06e2c7d9-62fd-41dc-b759-7ea4b8bab164)
+
 **QueryItems.razor**
 
 ```razor
@@ -931,11 +933,126 @@ The following code creates and deletes AWS DynamoDB Tables:
 
 ## 9. Create a Component for Searching Items inside a Table
 
+When the page loads, it calls LoadExistingTablesAsync to populate the dropdown with available DynamoDB tables
+
+The user selects a table and enters a year
+
+When the user clicks "Search," the QueryMoviesFunction is invoked, which queries DynamoDB for movies matching the selected year and table
+
+The result is displayed on the page, showing how many movies were found
+
+![image](https://github.com/user-attachments/assets/a4764de3-5907-444e-bc5b-74dce32548fd)
+
 **QueryMovies.razor**
 
 ```razor
+@page "/query-item"
 
+@using DynamoDbBlazor.Data
+@using DynamoDbBlazor.Services
+@inject DynamoDbService DynamoDbService
+
+<div class="container mt-4">
+    <h3 class="text-primary mb-4">Query Movies by Year</h3>
+
+    <!-- Dropdown list for selecting a DynamoDB table -->
+    <div class="mb-3">
+        <label for="tableSelect" class="form-label">Select Table:</label>
+        @if (tables == null)
+        {
+            <div>Loading tables...</div>
+        }
+        else if (tables.Count == 0)
+        {
+            <div>No tables found in AWS DynamoDB.</div>
+        }
+        else
+        {
+            <select id="tableSelect" class="form-select" @bind="tableName">
+                <option value="">-- Select a table --</option>
+                @foreach (var table in tables)
+                {
+                    <option value="@table">@table</option>
+                }
+            </select>
+        }
+    </div>
+
+    <EditForm Model="@searchYear" OnValidSubmit="@QueryMoviesFunction" class="needs-validation">
+        <div class="mb-3">
+            <label for="year" class="form-label">Year:</label>
+            <InputNumber id="year" @bind-Value="searchYear" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary" disabled="@string.IsNullOrEmpty(tableName)">Search</button>
+    </EditForm>
+
+    @if (moviesFound >= 0)
+    {
+        <div class="alert alert-info mt-3">Found @moviesFound movies from @searchYear in table @tableName.</div>
+    }
+</div>
+
+@code {
+    private int searchYear = 0;
+    private int moviesFound = -1;
+    private string tableName = ""; // Variable to store the selected table name
+    private List<string> tables = new List<string>(); // To store the list of tables from AWS
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadExistingTablesAsync(); // Load tables when the component initializes
+    }
+
+    // Method to load existing DynamoDB tables
+    private async Task LoadExistingTablesAsync()
+    {
+        try
+        {
+            tables = await DynamoDbService.ListTablesAsync(); // Get the list of tables from DynamoDB
+        }
+        catch (Exception ex)
+        {
+            // Handle error in loading tables
+            Console.WriteLine($"Error loading tables: {ex.Message}");
+        }
+    }
+
+    private async Task QueryMoviesFunction()
+    {
+        // Ensure the table name is provided
+        if (string.IsNullOrEmpty(tableName))
+        {
+            moviesFound = -1;
+            return;
+        }
+
+        // Pass the table name and search year to query the DynamoDB table
+        moviesFound = await DynamoDbService.QueryMoviesAsync(searchYear, tableName);
+    }
+}
 ```
 
 ## 10. Add the MenuItems for accessing the above new components
+
+These are the NavLinkd adding to navigate to the new components:
+
+```
+ <div class="nav-item px-3">
+     <NavLink class="nav-link" href="create-table">
+         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Create_Table_Movie
+     </NavLink>
+ </div>
+
+ <div class="nav-item px-3">
+     <NavLink class="nav-link" href="add-item">
+         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Add_Movie
+     </NavLink>
+ </div>
+
+ <div class="nav-item px-3">
+     <NavLink class="nav-link" href="query-item">
+         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Query_Movie
+     </NavLink>
+ </div>
+```
 
